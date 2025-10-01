@@ -1,6 +1,7 @@
 """Tests for viewer module."""
 
 import json
+from time import sleep
 from unittest.mock import patch
 
 import pytest
@@ -176,6 +177,7 @@ class TestFindLatestBackup:
         backup1 = tmp_path / "output_20230101_120000"
         backup2 = tmp_path / "output_20230102_120000"
         backup1.mkdir()
+        sleep(2)
         backup2.mkdir()
 
         with patch("bright_horizons_backup.viewer.Path") as mock_path:
@@ -185,6 +187,6 @@ class TestFindLatestBackup:
             assert latest.name == "output_20230102_120000"
 
     def test_find_latest_backup_no_backups(self, tmp_path):
-        with patch("pathlib.Path.cwd", return_value=tmp_path):
+        with patch("bright_horizons_backup.viewer.Path.cwd", return_value=tmp_path):
             latest = find_latest_backup()
             assert latest is None

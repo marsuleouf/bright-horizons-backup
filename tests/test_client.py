@@ -53,7 +53,7 @@ class TestBrightHorizonsClient:
         assert client.password == "password"
 
     def test_init_without_credentials_raises_error(self):
-        with patch.dict("os.environ", {}, clear=True):
+        with patch("bright_horizons_backup.client.env", return_value=None):
             with pytest.raises(ValueError):
                 BrightHorizonsClient()
 

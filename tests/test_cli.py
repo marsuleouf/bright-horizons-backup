@@ -12,7 +12,7 @@ class TestParseArgs:
         with patch("sys.argv", ["bright-horizons-backup"]):
             args = parse_args()
             assert args.batch_days == 30
-            assert args.max_concurrent == 5
+            assert args.max_concurrent == 16
             assert args.verbose is False
 
     def test_parse_args_with_options(self):
