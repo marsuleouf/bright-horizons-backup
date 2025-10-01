@@ -39,7 +39,7 @@ jobs:
           uv run playwright install chromium
 
       - name: Run tests
-        run: uv run pytest --cov --cov-report=xml
+        run: uv run pytest --cov --cov-branch --cov-report=xml
 
       - name: Upload coverage (Codecov)
         if: matrix.python-version == '3.11'
