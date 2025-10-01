@@ -22,15 +22,26 @@ jobs:
       - name: Verify tag matches project version
         run: |
           python - <<'PY'
-          import tomllib, os, sys
+          import os, sys
+          import tomllib
+          # Read version from pyproject.toml
           with open("pyproject.toml","rb") as f:
-              data = tomllib.load(f)
-          ver = data.get("project",{}).get("version")
-          tag = os.environ["GITHUB_REF"].removeprefix("refs/tags/")
-          if ver != tag:
+              ver = tomllib.load(f).get("project", {}).get("version")
+          if not ver:
+              print("No [project].version found in pyproject.toml", file=sys.stderr)
+              sys.exit(1)
+          
+          # Tag from the release event
+          tag = os.environ["TAG_NAME"]
+          # Allow a leading 'v' in the tag
+          tag_norm = tag[1:] if tag.startswith("v") else tag
+          
+          if ver != tag_norm:
               print(f"Project version ({ver}) doesn't match tag ({tag})", file=sys.stderr)
               sys.exit(1)
           PY
+        env:
+          TAG_NAME: ${{ github.event.release.tag_name }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
