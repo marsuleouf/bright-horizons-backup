@@ -4,25 +4,57 @@ on:
   release:
     types: [published]
 
+permissions:
+  contents: read
+  id-token: write     # required for PyPI Trusted Publishing (OIDC)
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   publish:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: "3.11"
-    
-    - name: Install uv
-      uses: astral-sh/setup-uv@v2
-    
-    - name: Build package
-      run: uv build
-    
-    - name: Publish to PyPI
-      env:
-        UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
-      run: uv publish
+      - uses: actions/checkout@v4
+
+      - name: Verify tag matches project version
+        run: |
+          python - <<'PY'
+          import tomllib, os, sys
+          with open("pyproject.toml","rb") as f:
+              data = tomllib.load(f)
+          ver = data.get("project",{}).get("version")
+          tag = os.environ["GITHUB_REF"].removeprefix("refs/tags/")
+          if ver != tag:
+              print(f"Project version ({ver}) doesn't match tag ({tag})", file=sys.stderr)
+              sys.exit(1)
+          PY
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v2
+        with:
+          enable-cache: true
+
+      - name: Build (sdist & wheel)
+        run: uv build
+
+      - name: Upload dist as artifact (optional)
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          if-no-files-found: error
+
+      # OIDC-based publish (no token needed). Enable Trusted Publishing on PyPI first.
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist
+          # repository-url: https://test.pypi.org/legacy/  # <-- uncomment to publish to TestPyPI

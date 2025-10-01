@@ -1,12 +1,18 @@
+# .github/dependabot.yml
 version: 2
 updates:
-  - package-ecosystem: "pip"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 10
-
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    labels: ["dependencies"]
+
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      uv-dependencies:
+        patterns: ["*"]
+    labels: ["dependencies", "automerge"]   # add 'automerge' to opt-in to auto-merge
+    open-pull-requests-limit: 10

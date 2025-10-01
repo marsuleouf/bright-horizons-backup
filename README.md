@@ -13,7 +13,7 @@ playwright install chromium
 ### Using uv (recommended)
 ```bash
 uv add bright-horizons-backup
-playwright install chromium
+uv run playwright install chromium
 ```
 
 ## Setup

@@ -19,7 +19,7 @@ Thank you for your interest in contributing to Bright Horizons Backup! This docu
 3. **Install development dependencies**:
    ```bash
    uv sync --extra dev --extra viewer
-   playwright install chromium
+   uv run playwright install chromium
    ```
 
 4. **Setup pre-commit hooks** (optional but recommended):

@@ -1,0 +1,31 @@
+# .github/workflows/dependabot-automerge.yml
+name: Dependabot Auto-merge
+
+on:
+  pull_request:
+    types: [opened, synchronize, labeled, unlabeled, ready_for_review]
+
+permissions:
+  contents: write         # needed to merge
+  pull-requests: write
+
+jobs:
+  automerge:
+    if: ${{ github.actor == 'dependabot[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dependabot metadata
+        id: meta
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable auto-merge (squash) for safe updates
+        if: >
+          ${{
+            steps.meta.outputs.update-type != 'version-update:semver-major' &&
+            contains(join(github.event.pull_request.labels.*.name, ','), 'automerge')
+          }}
+        uses: peter-evans/enable-pull-request-automerge@v3
+        with:
+          merge-method: squash

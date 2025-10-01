@@ -1,0 +1,34 @@
+name: Dependabot - Update uv.lock
+
+on:
+  pull_request:
+    # Only run for Dependabot PRs
+    types: [opened, synchronize]
+    branches: [main, develop]
+
+jobs:
+  update-uv-lock:
+    if: ${{ github.actor == 'dependabot[bot]' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v2
+        with:
+          enable-cache: true
+
+      - name: Regenerate uv.lock
+        run: uv lock --upgrade
+
+      - name: Commit updated uv.lock
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update uv.lock"
+          branch: ${{ github.head_ref }}
