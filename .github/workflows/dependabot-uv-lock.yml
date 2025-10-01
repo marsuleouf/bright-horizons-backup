@@ -28,7 +28,7 @@ jobs:
         run: uv lock --upgrade
 
       - name: Commit updated uv.lock
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v6
         with:
           commit_message: "chore: update uv.lock"
           branch: ${{ github.head_ref }}
